@@ -1,0 +1,5 @@
+*.swp
+*.pyc
+*.tar.gz
+.ipynb_checkpoints
+__pycache__/
