@@ -9,6 +9,7 @@ class ConjugateGradientSolver():
         self.iter = iter
         self.term_criteria = term_crit
         self.variant = variant
+        self.n = x0.shape[0]
 
         self.update(x0)
         self.curr_direction = -1. * self.grad_fx
@@ -48,10 +49,13 @@ class ConjugateGradientSolver():
         self.update(next_iterate)
 
         # Use g_k and g_{k+1} to compute beta (FR)
-        beta = self.compute_beta(
-            prev_grad=grad_fx_prev,
-            curr_grad=self.grad_fx
-        )
+        if self.iter % self.n == 0:
+            beta = 0
+        else:
+            beta = self.compute_beta(
+                prev_grad=grad_fx_prev,
+                curr_grad=self.grad_fx
+            )
 
         # Compute next direction: d_{k+1} and update self.curr_direction
         next_direction = -1. * self.grad_fx + beta * self.curr_direction
