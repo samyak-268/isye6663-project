@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 
 from functions import RosenbrockFn, PowellFn
-from solvers import SteepestDescentSolver
+from solvers import SteepestDescentSolver, ConjugateGradientSolver
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
@@ -17,9 +17,15 @@ if __name__=='__main__':
     parser.add_argument('--alpha', type=float, default=0.001)
     parser.add_argument('--solver',
         type=str,
-        choices=['steepest_descent'],
-        default='steepest_descent'
+        choices=['steepest-descent', 'conjugate-gradient'],
+        default='steepest-descent'
     )
+    parser.add_argument('--cg_variant',
+        type=str,
+        choices=['fr', 'pr'],
+        default='fr'
+    )
+
     parser.add_argument('--term_crit',
         type=str,
         choices=['fn', 'grad'],
@@ -41,12 +47,20 @@ if __name__=='__main__':
     '''
         Init solver
     '''
-    if args.solver == 'steepest_descent':
+    if args.solver == 'steepest-descent':
         solver = SteepestDescentSolver(
             fn=fn,
             x0=np.asarray([-1.2, 1, -1.2, 1], dtype=np.float32),
             alpha=args.alpha,
             term_crit=args.term_crit
+        )
+    elif args.solver == 'conjugate-gradient':
+        solver = ConjugateGradientSolver(
+            fn=fn,
+            x0=np.asarray([3, -1, 0, 1], dtype=np.float32),
+            alpha=args.alpha,
+            term_crit=args.term_crit,
+            variant=args.cg_variant
         )
 
     '''
