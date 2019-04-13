@@ -1,14 +1,16 @@
+from typing import Dict, Optional, Tuple, Type
+
 import copy
 import numpy as np
 
 class LineSearchMethod(object):
     def __init__(
         self,
-        sigma,
-        tau=None,
-        beta=None,
-        s_armijo=None,
-        step_size_rule='armijos',
+        sigma: float,
+        tau: Optional[float] = None,
+        beta: Optional[float] = None,
+        s_armijo: Optional[float] = None,
+        step_size_rule: str = 'armijos',
     ):
         assert sigma < 1 and sigma > 0
         self.sigma = sigma
@@ -63,14 +65,14 @@ class LineSearchMethod(object):
             raise NotImplementedError
 
 
-    def sigma_condition(self, alpha, phi, grad_phi_alpha):
+    def sigma_condition(self, alpha, phi, grad_phi_alpha) -> bool:
         return phi(alpha) <= self.sigma * alpha * grad_phi_alpha(0)
 
-    def goldstein_condition(self, alpha, phi, grad_phi_alpha):
+    def goldstein_condition(self, alpha, phi, grad_phi_alpha) -> bool:
         return phi(alpha) >= self.tau * alpha * grad_phi_alpha(0)
 
-    def wp_condition(self, alpha, phi, grad_phi_alpha):
+    def wp_condition(self, alpha, phi, grad_phi_alpha) -> bool:
         return grad_phi_alpha(alpha) >= self.tau * grad_phi_alpha(0)
 
-    def strong_wp_condition(self, alpha, phi, grad_phi_alpha):
+    def strong_wp_condition(self, alpha, phi, grad_phi_alpha) -> bool:
         return np.abs(grad_phi_alpha(alpha)) <= -self.tau * grad_phi_alpha(0)
