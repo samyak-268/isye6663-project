@@ -60,7 +60,7 @@ class ConjugateGradientSolver():
             alpha = self.ls_method.line_search(
                 fn=self.fn,
                 iterate=self.curr_iterate,
-                descent_dir= -1 * self.grad_fx,
+                descent_dir=self.curr_direction,
                 grad_fx=self.grad_fx,
             )
 
