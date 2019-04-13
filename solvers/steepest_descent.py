@@ -44,6 +44,7 @@ class SteepestDescentSolver():
     def step(self):
         self.iter += 1
         alpha = self.alpha
+
         if self.use_line_search:
             alpha = self.ls_method.line_search(
                 fn=self.fn,
@@ -51,6 +52,7 @@ class SteepestDescentSolver():
                 descent_dir= -1 * self.grad_fx,
                 grad_fx=self.grad_fx,
             )
+
         next_iterate = self.curr_iterate - alpha * self.grad_fx
 
         self.curr_iterate = next_iterate

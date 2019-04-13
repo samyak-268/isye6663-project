@@ -2,7 +2,17 @@ import copy
 import numpy as np
 
 class ConjugateGradientSolver():
-    def __init__(self, fn, x0, alpha, iter=0, term_crit='fn', variant='fr'):
+    def __init__(
+        self,
+        fn,
+        x0,
+        alpha,
+        iter=0,
+        term_crit='fn',
+        variant='fr',
+        use_line_search=False,
+        ls_method_kwargs=None,
+    ):
         self.EPS = 1e-6
         self.fn = fn
         self.alpha = alpha
@@ -10,6 +20,13 @@ class ConjugateGradientSolver():
         self.term_criteria = term_crit
         self.variant = variant
         self.n = x0.shape[0]
+        self.use_line_search = use_line_search
+
+        if use_line_search:
+            self.ls_method = LineSearchMethod(**ls_method_kwargs)
+        else:
+            assert self.alpha is not None
+            self.ls_method = None
 
         self.update(x0)
         self.curr_direction = -1. * self.grad_fx
@@ -37,9 +54,18 @@ class ConjugateGradientSolver():
 
     def step(self):
         self.iter += 1
+        alpha = self.alpha
+
+        if self.use_line_search:
+            alpha = self.ls_method.line_search(
+                fn=self.fn,
+                iterate=self.curr_iterate,
+                descent_dir= -1 * self.grad_fx,
+                grad_fx=self.grad_fx,
+            )
 
         # Compute next iterate: x_{k+1}
-        next_iterate = self.curr_iterate + self.alpha * self.curr_direction
+        next_iterate = self.curr_iterate + alpha * self.curr_direction
 
         # Caching g_k from self.grad_fx (before it gets overwritten by update)
         grad_fx_prev = copy.copy(self.grad_fx)
