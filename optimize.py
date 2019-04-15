@@ -3,7 +3,9 @@ import argparse
 import numpy as np
 
 from functions import RosenbrockFn, PowellFn
-from solvers import SteepestDescentSolver, ConjugateGradientSolver
+from solvers import (SteepestDescentSolver,
+                    ConjugateGradientSolver,
+                    QuasiNewtonMethod)
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
@@ -17,8 +19,8 @@ if __name__=='__main__':
     parser.add_argument('--alpha', type=float, default=0.001)
     parser.add_argument('--solver',
         type=str,
-        choices=['steepest-descent', 'conjugate-gradient'],
-        default='steepest-descent'
+        choices=['steepest-descent', 'conjugate-gradient', 'dfp'],
+        default='dfp'
     )
 
     parser.add_argument('--cg_variant',
@@ -80,6 +82,23 @@ if __name__=='__main__':
             alpha=args.alpha,
             term_crit=args.term_crit,
             variant=args.cg_variant,
+            use_line_search=args.line_search_method != 'constant',
+            ls_method_kwargs = dict(
+                sigma=args.ls_sigma,
+                tau=None,
+                beta=args.armijos_beta,
+                s_armijo=args.armijos_s,
+                step_size_rule=args.line_search_method,
+            )
+        )
+
+    elif args.solver == 'dfp':
+        solver = QuasiNewtonMethod(
+            fn=fn,
+            x0=np.asarray([3, -1, 0, 1], dtype=np.float32),
+            alpha=args.alpha,
+            term_crit=args.term_crit,
+            # variant=args.cg_variant,
             use_line_search=args.line_search_method != 'constant',
             ls_method_kwargs = dict(
                 sigma=args.ls_sigma,
