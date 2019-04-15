@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 
 from functions import RosenbrockFn, PowellFn
-from solvers import SteepestDescentSolver
+from solvers import SteepestDescentSolver, ConjugateGradientSolver
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
@@ -17,16 +17,33 @@ if __name__=='__main__':
     parser.add_argument('--alpha', type=float, default=0.001)
     parser.add_argument('--solver',
         type=str,
-        choices=['steepest_descent'],
-        default='steepest_descent'
+        choices=['steepest-descent', 'conjugate-gradient'],
+        default='steepest-descent'
     )
+
+    parser.add_argument('--cg_variant',
+        type=str,
+        choices=['fr', 'pr'],
+        default='fr'
+    )
+
+    parser.add_argument('--line_search_method',
+        type=str,
+        choices=['armijos', 'constant'],
+        default='armijos',
+    )
+
+    parser.add_argument('--armijos_s', type=float, default=0.5)
+    parser.add_argument('--armijos_beta', type=float, default=0.5)
+    parser.add_argument('--ls_sigma', type=float, default=0.1)
+
     parser.add_argument('--term_crit',
         type=str,
         choices=['fn', 'grad'],
         default='fn'
     )
     parser.add_argument('--max_iters', type=int, default=1000)
-    parser.add_argument('--log_every', type=int, default=100)
+    parser.add_argument('--log_every', type=int, default=1)
 
     args = parser.parse_args()
 
@@ -41,12 +58,36 @@ if __name__=='__main__':
     '''
         Init solver
     '''
-    if args.solver == 'steepest_descent':
+    if args.solver == 'steepest-descent':
         solver = SteepestDescentSolver(
             fn=fn,
             x0=np.asarray([-1.2, 1, -1.2, 1], dtype=np.float32),
             alpha=args.alpha,
-            term_crit=args.term_crit
+            term_crit=args.term_crit,
+            use_line_search=args.line_search_method != 'constant',
+            ls_method_kwargs = dict(
+                sigma=args.ls_sigma,
+                tau=None,
+                beta=args.armijos_beta,
+                s_armijo=args.armijos_s,
+                step_size_rule=args.line_search_method,
+            )
+        )
+    elif args.solver == 'conjugate-gradient':
+        solver = ConjugateGradientSolver(
+            fn=fn,
+            x0=np.asarray([3, -1, 0, 1], dtype=np.float32),
+            alpha=args.alpha,
+            term_crit=args.term_crit,
+            variant=args.cg_variant,
+            use_line_search=args.line_search_method != 'constant',
+            ls_method_kwargs = dict(
+                sigma=args.ls_sigma,
+                tau=None,
+                beta=args.armijos_beta,
+                s_armijo=args.armijos_s,
+                step_size_rule=args.line_search_method,
+            )
         )
 
     '''
