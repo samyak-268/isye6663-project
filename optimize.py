@@ -43,7 +43,7 @@ if __name__=='__main__':
         default='fn'
     )
     parser.add_argument('--max_iters', type=int, default=1000)
-    parser.add_argument('--log_every', type=int, default=100)
+    parser.add_argument('--log_every', type=int, default=1)
 
     args = parser.parse_args()
 
@@ -80,6 +80,7 @@ if __name__=='__main__':
             alpha=args.alpha,
             term_crit=args.term_crit,
             variant=args.cg_variant,
+            use_line_search=args.line_search_method != 'constant',
             ls_method_kwargs = dict(
                 sigma=args.ls_sigma,
                 tau=None,

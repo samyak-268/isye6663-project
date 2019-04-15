@@ -1,6 +1,8 @@
 import copy
 import numpy as np
 
+from line_search import LineSearchMethod
+
 class ConjugateGradientSolver():
     def __init__(
         self,
