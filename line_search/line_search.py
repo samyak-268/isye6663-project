@@ -45,7 +45,7 @@ class LineSearchMethod(object):
             iterate=iterate, fn=fn, descent_dir=descent_dir)
 
         if self.step_size_rule == 'armijos':
-            MAX_ARMIJO_TRIALS = 1000
+            MAX_ARMIJO_TRIALS = 2500
             trial_idx = 0
             assert self.s_armijo is not None and self.beta is not None,\
                 "Need to set s_armijo and beta for armijo's rule!"

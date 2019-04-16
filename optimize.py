@@ -36,14 +36,14 @@ if __name__=='__main__':
         default='armijos',
     )
 
-    parser.add_argument('--armijos_s', type=float, default=0.5)
+    parser.add_argument('--armijos_s', type=float, default=1.0)
     parser.add_argument('--armijos_beta', type=float, default=0.5)
     parser.add_argument('--ls_sigma', type=float, default=0.1)
 
     parser.add_argument('--term_crit',
         type=str,
         choices=['fn', 'grad'],
-        default='fn'
+        default='grad'
     )
     parser.add_argument('--max_iters', type=int, default=1000)
     parser.add_argument('--log_every', type=int, default=1)
