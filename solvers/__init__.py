@@ -1,3 +1,3 @@
 from .steepest_descent import SteepestDescentSolver
 from .conjugate_gradient import ConjugateGradientSolver
-from .quasi_newton import QuasiNewtonMethod
+from .quasi_newton import DFPSolver, BFGSSolver

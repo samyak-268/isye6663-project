@@ -30,31 +30,9 @@ class QuasiNewtonMethod(BaseSolver):
         self.prev_iterate = None
         self.curr_direction = -1. * np.matmul(self.curr_H, self.grad_fx)
         self.prev_direction = None
-        # self.curr_p = None
-        # self.curr_q = None
-
-    # def compute_beta(self, prev_grad, curr_grad):
-    #     curr_grad_norm = np.linalg.norm(curr_grad)
-    #     prev_grad_norm = np.linalg.norm(prev_grad)
-    #
-    #     if self.variant == 'fr':
-    #         return np.square(curr_grad_norm / prev_grad_norm)
-    #     elif self.variant == 'pr':
-    #         return np.dot(curr_grad, (curr_grad - prev_grad)) / np.square(prev_grad_norm)
-
-    # def update(self, x0):
-    #     super().update(x0)
 
     def rank_two_update(self, grad_fx_prev, p_k, q_k):
-        '''DFP Update'''
-        H_q_mul = np.matmul(self.prev_H, q_k)
-        _div_1 = np.dot(p_k, q_k)
-        _div_2 = np.dot(q_k, H_q_mul)
-
-        H_new = self.prev_H \
-            + np.outer(p_k, p_k) / _div_1 \
-            + np.outer(H_q_mul, H_q_mul) / _div_2
-        return H_new
+        raise NotImplementedError("Child class must implement rank_two_update")
 
     def step(self):
         self.iter += 1
@@ -89,3 +67,73 @@ class QuasiNewtonMethod(BaseSolver):
         self.curr_H = H_new
 
         self.curr_direction = -1. * np.matmul(self.curr_H, self.grad_fx)
+
+
+class DFPSolver(QuasiNewtonMethod):
+    def __init__(
+        self,
+        fn,
+        x0,
+        alpha=None,
+        iter=0,
+        term_crit='fn',
+        use_line_search=False,
+        ls_method_kwargs=None,
+    ):
+        super().__init__(
+            fn=fn,
+            x0=x0,
+            alpha=alpha,
+            iter=iter,
+            term_crit=term_crit,
+            use_line_search=use_line_search,
+            ls_method_kwargs=ls_method_kwargs,
+        )
+
+    def rank_two_update(self, grad_fx_prev, p_k, q_k):
+        H_q_mul = np.matmul(self.prev_H, q_k)
+        _div_1 = np.dot(p_k, q_k)
+        _div_2 = np.dot(q_k, H_q_mul)
+
+        H_new = self.prev_H \
+            + np.outer(p_k, p_k) / _div_1 \
+            + np.outer(H_q_mul, H_q_mul) / _div_2
+        return H_new
+
+
+class BFGSSolver(QuasiNewtonMethod):
+    def __init__(
+        self,
+        fn,
+        x0,
+        alpha=None,
+        iter=0,
+        term_crit='fn',
+        use_line_search=False,
+        ls_method_kwargs=None,
+    ):
+        super().__init__(
+            fn=fn,
+            x0=x0,
+            alpha=alpha,
+            iter=iter,
+            term_crit=term_crit,
+            use_line_search=use_line_search,
+            ls_method_kwargs=ls_method_kwargs,
+        )
+
+    def rank_two_update(self, grad_fx_prev, p_k, q_k):
+        H_q_mul = np.matmul(self.prev_H, q_k)
+        q_H_q_mul = np.dot(q_k, H_q_mul)
+        pp_outer = np.outer(p_k, p_k)
+        pq_inner = np.dot(p_k, q_k)
+
+        term_1 = 1 + (q_H_q_mul / pq_inner)
+        term_1 *= (pp_outer / pq_inner)
+
+        term_2 = np.matmul(pp_outer, self.prev_H)
+        term_2 += np.outer(H_q_mul, p_k)
+        term_2 /= pq_inner
+
+        H_new = self.prev_H + term_1 - term_2
+        return H_new
