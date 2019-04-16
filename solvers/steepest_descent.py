@@ -27,6 +27,9 @@ class SteepestDescentSolver(BaseSolver):
         )
         pass
 
+    def __str__(self):
+        return "steepest-descent"
+
     def step(self):
         self.iter += 1
         alpha = self.alpha

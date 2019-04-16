@@ -1,9 +1,12 @@
+import os
+import pickle
 import ipdb
 import argparse
 import numpy as np
 
 from functions import RosenbrockFn, PowellFn
 from solvers import SteepestDescentSolver, ConjugateGradientSolver
+from utils import Logger, get_output_fname
 
 def get_initial_iterate(args):
     x0 = np.zeros((args.n,), dtype=np.float32)
@@ -113,13 +116,22 @@ if __name__=='__main__':
     '''
         Iterate
     '''
-    print ("iter: {0}, fx={1:.3f}".format(solver.iter, solver.fx))
+    logger = Logger(solver)
+
+    logger.save()
+    logger.log()
     while (not solver.termination_criteria_reached()):
         solver.step()
-
+        logger.save()
         if solver.iter % args.log_every == 0:
-            print ("iter: {0}, fx={1:.6f}, ||grad_fx||={2:.6f}".format(
-                solver.iter, solver.fx, solver.grad_fx_norm
-            ))
-
+            logger.log()
         if solver.iter == args.max_iters: break
+
+
+    '''
+        Save result
+    '''
+    output_fname = get_output_fname(args, solver)
+    output_fpath = os.path.join('notebooks/data', output_fname)
+    output = {'args': args, 'plot_data': logger.data}
+    with open(output_fpath, 'wb') as f: pickle.dump(output, f)

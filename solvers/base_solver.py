@@ -44,6 +44,9 @@ class BaseSolver(object):
         self.grad_fx = self.fn.gradient(x)
         self.grad_fx_norm = np.linalg.norm(self.grad_fx)
 
+    def __str__(self):
+        raise NotImplementedError("Child class must implement __str__ function!")
+
     def step(self):
         raise NotImplementedError("Child class must implement step function!")
 
