@@ -2,6 +2,7 @@ import os
 import copy
 import shlex
 import subprocess
+from subprocess import Popen
 import ipdb
 
 class Launcher():
@@ -33,11 +34,11 @@ class Launcher():
         --tb
     '''
 
-
-    def __init__(self, functions, dims, solvers):
+    def __init__(self, functions, dims, solvers, wait_for_all=True):
         self.functions = functions
         self.dims = dims
         self.solvers = solvers
+        self.wait_for_all = wait_for_all
 
     def get_cmds_to_run(self):
         self.cmds = []
@@ -52,23 +53,34 @@ class Launcher():
                         args['CG_VARIANT'] = args['SOLVER'].split('-')[0]
                         args['SOLVER'] = 'conjugate-gradient'
 
+                    if 'lbfgs-' in args['SOLVER']:
+                        args['lbfgs_queue_size'] = args['SOLVER'].split('-')[1]
+                        args['SOLVER'] = 'lbfgs'
+
                     self.cmds.append(Launcher.cmd_template.format(**args))
 
     def launch_job(self, cmd):
-        subprocess.check_call(shlex.split(cmd))
-        print (cmd)
+        # print(cmd)
+        # subprocess.check_call(shlex.split(cmd))
+        return Popen(cmd, shell=True)
 
     def launch_all(self):
         launcher.get_cmds_to_run()
-        for cmd in self.cmds:
-            self.launch_job(cmd)
+        for i, cmd in enumerate(self.cmds):
+            print("Launching job {}...".format(i+1))
+            proc = self.launch_job(cmd)
+            if self.wait_for_all:
+                print("Waiting for job {} to finish".format(i+1))
+                proc.wait()
 
 
 if __name__=='__main__':
 
     functions = ['rosenbrock', 'powell']
     dims = [4, 64, 1024, 2048]
-    solvers = ['steepest-descent', 'fr-cg', 'pr-cg']
+    solvers = ['steepest-descent', 'fr-cg', 'pr-cg', 'bfgs', 'dfp',
+        'lbfgs-2', 'lbfgs-4', 'lbfgs-8']
+    # solvers = ['lbfgs-2', 'lbfgs-4', 'lbfgs-8']
 
     launcher = Launcher(functions, dims, solvers)
     launcher.launch_all()
