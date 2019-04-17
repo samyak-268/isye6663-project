@@ -71,7 +71,7 @@ class Launcher():
             print("Launching job {}...".format(i+1))
             proc = self.launch_job(cmd)
             procs.append((i, proc))
-            if (i+1) % self.wait_every == 0:
+            if len(procs) >= self.wait_every:
                 for j, proc in procs:
                     print("Waiting for job {} to finish".format(j+1))
                     proc.wait()
