@@ -34,11 +34,11 @@ class Launcher():
         --tb
     '''
 
-    def __init__(self, functions, dims, solvers, wait_for_all=True):
+    def __init__(self, functions, dims, solvers, wait_every=20):
         self.functions = functions
         self.dims = dims
         self.solvers = solvers
-        self.wait_for_all = wait_for_all
+        self.wait_every = wait_every
 
     def get_cmds_to_run(self):
         self.cmds = []
@@ -70,15 +70,13 @@ class Launcher():
         for i, cmd in enumerate(self.cmds):
             print("Launching job {}...".format(i+1))
             proc = self.launch_job(cmd)
-            if self.wait_for_all:
-                print("Waiting for job {} to finish".format(i+1))
-                proc.wait()
-            procs.append(proc)
-
-        if not self.wait_for_all:
-            for i, proc in enumerate(procs):
-                proc.wait()
-                print("Finished job {}".format(i+1))
+            procs.append((i, proc))
+            if (i+1) % self.wait_every == 0:
+                for j, proc in procs:
+                    print("Waiting for job {} to finish".format(j+1))
+                    proc.wait()
+                    print("Finished job {}".format(j+1))
+                procs = []
 
 if __name__=='__main__':
 
@@ -88,5 +86,5 @@ if __name__=='__main__':
         'lbfgs-2', 'lbfgs-4', 'lbfgs-8']
     # solvers = ['lbfgs-2', 'lbfgs-4', 'lbfgs-8']
 
-    launcher = Launcher(functions, dims, solvers, wait_for_all=False)
+    launcher = Launcher(functions, dims, solvers, wait_every=16)
     launcher.launch_all()
