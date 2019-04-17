@@ -31,6 +31,7 @@ class LineSearchMethod(object):
         if step_size_rule != 'armijos':
             raise NotImplementedError("Only Armijo's rule supported.")
         self.step_size_rule = step_size_rule
+        self.total_trials = 0
 
     @staticmethod
     def phi_fn(iterate, fn, descent_dir):
@@ -61,6 +62,7 @@ class LineSearchMethod(object):
                 else:
                     alpha = alpha * self.beta
                 trial_idx += 1
+                self.total_trials += 1
 
             raise RuntimeError("Max armijo trials exceeded!")
         else:
