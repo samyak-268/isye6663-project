@@ -67,6 +67,7 @@ if __name__=='__main__':
     )
     parser.add_argument('--max_iters', type=int, default=1000)
     parser.add_argument('--log_every', type=int, default=1)
+    parser.add_argument('--tb', action='store_true')
 
     args = parser.parse_args()
 
@@ -116,13 +117,27 @@ if __name__=='__main__':
     '''
         Iterate
     '''
-    logger = Logger(solver)
+    if args.tb:
+        from tensorboardX import SummaryWriter
+        log_dir = 'notebooks/logs'
+        log_dir = os.path.join(
+            log_dir,
+            get_output_fname(args, solver).replace(".pkl", "")
+        )
+        writer = SummaryWriter(log_dir)
+        logger = Logger(solver, writer)
+    else:
+        logger = Logger(solver)
 
     logger.save()
+    logger.graph()
     logger.log()
     while (not solver.termination_criteria_reached()):
+
         solver.step()
         logger.save()
+        logger.graph()
+
         if solver.iter % args.log_every == 0:
             logger.log()
         if solver.iter == args.max_iters: break

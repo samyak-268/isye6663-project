@@ -24,8 +24,9 @@ def get_output_fname(args, solver):
 
 
 class Logger():
-    def __init__(self, solver):
+    def __init__(self, solver, tb_writer=None):
         self.solver = solver
+        self.tb_writer = tb_writer
         self.data = []
 
     def save(self):
@@ -34,6 +35,11 @@ class Logger():
             'fx': self.solver.fx,
             'grad_fx': self.solver.grad_fx
         })
+
+    def graph(self):
+        if self.tb_writer is not None:
+            self.tb_writer.add_scalar('fn_value', self.solver.fx, self.solver.iter)
+            self.tb_writer.add_scalar('grad_norm', self.solver.grad_fx_norm, self.solver.iter)
 
     def log(self):
         print ("iter: {0}, fx={1:.6f}, grad_fx_norm={2:.6f}".format(
