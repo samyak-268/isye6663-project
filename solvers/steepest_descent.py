@@ -25,7 +25,6 @@ class SteepestDescentSolver(BaseSolver):
             use_line_search=use_line_search,
             ls_method_kwargs=ls_method_kwargs,
         )
-        pass
 
     def __str__(self):
         return "steepest-descent"

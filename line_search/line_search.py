@@ -31,6 +31,7 @@ class LineSearchMethod(object):
         if step_size_rule != 'armijos':
             raise NotImplementedError("Only Armijo's rule supported.")
         self.step_size_rule = step_size_rule
+        self.total_trials = 0
 
     @staticmethod
     def phi_fn(iterate, fn, descent_dir):
@@ -40,25 +41,28 @@ class LineSearchMethod(object):
             fn.gradient(iterate + alpha * descent_dir), descent_dir)
         return phi, grad_phi_alpha
 
-    def line_search(self, fn, iterate, descent_dir, grad_fx):
+    def line_search(self, fn, iterate, descent_dir, grad_fx,
+        max_trials=2500, min_step_size=1e-10):
         phi, grad_phi_alpha = self.phi_fn(
             iterate=iterate, fn=fn, descent_dir=descent_dir)
 
         if self.step_size_rule == 'armijos':
-            MAX_ARMIJO_TRIALS = 1000
             trial_idx = 0
             assert self.s_armijo is not None and self.beta is not None,\
                 "Need to set s_armijo and beta for armijo's rule!"
 
             alpha = self.s_armijo
-            while(trial_idx < MAX_ARMIJO_TRIALS):
+            while(trial_idx < max_trials):
                 # print("Trying alpha: {}".format(alpha))
+                if min_step_size is not None and alpha < min_step_size:
+                    return min_step_size
                 if self.sigma_condition(alpha, phi, grad_phi_alpha):
                     # print("Succeeded sigma condition on alpha: {}".format(alpha))
                     return alpha
                 else:
                     alpha = alpha * self.beta
                 trial_idx += 1
+                self.total_trials += 1
 
             raise RuntimeError("Max armijo trials exceeded!")
         else:
