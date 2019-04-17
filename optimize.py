@@ -1,3 +1,5 @@
+import os
+import pickle
 import ipdb
 import argparse
 import numpy as np
@@ -7,6 +9,28 @@ from solvers import (SteepestDescentSolver,
                     ConjugateGradientSolver,
                     DFPSolver,
                     BFGSSolver)
+from utils import Logger, get_output_fname
+
+def get_initial_iterate(args):
+    x0 = np.zeros((args.n,), dtype=np.float32)
+
+    if args.function == 'rosenbrock':
+        even_idxs = np.arange(0, x0.shape[0], 2)
+        odd_idxs = np.arange(1, x0.shape[0], 2)
+        x0[even_idxs], x0[odd_idxs] = -1.2, 1.
+    elif args.function == 'powell':
+        first_set_idxs = np.arange(0, x0.shape[0], 4)
+        second_set_idxs = np.arange(1, x0.shape[0], 4)
+        third_set_idxs = np.arange(2, x0.shape[0], 4)
+        fourth_set_idxs = np.arange(3, x0.shape[0], 4)
+
+        x0[first_set_idxs] = 3.
+        x0[second_set_idxs] = -1.
+        x0[third_set_idxs] = 0.
+        x0[fourth_set_idxs] = 1.
+
+    return x0
+
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
@@ -72,7 +96,7 @@ if __name__=='__main__':
     if args.solver == 'steepest-descent':
         solver = SteepestDescentSolver(
             fn=fn,
-            x0=np.asarray([-1.2, 1, -1.2, 1], dtype=np.float32),
+            x0=get_initial_iterate(args),
             alpha=args.alpha,
             term_crit=args.term_crit,
             use_line_search=args.line_search_method != 'constant',
@@ -82,7 +106,7 @@ if __name__=='__main__':
     elif args.solver == 'conjugate-gradient':
         solver = ConjugateGradientSolver(
             fn=fn,
-            x0=np.asarray([3, -1, 0, 1], dtype=np.float32),
+            x0=get_initial_iterate(args),
             alpha=args.alpha,
             term_crit=args.term_crit,
             variant=args.cg_variant,
@@ -118,13 +142,22 @@ if __name__=='__main__':
     '''
         Iterate
     '''
-    print ("iter: {0}, fx={1:.3f}".format(solver.iter, solver.fx))
+    logger = Logger(solver)
+
+    logger.save()
+    logger.log()
     while (not solver.termination_criteria_reached()):
         solver.step()
-
+        logger.save()
         if solver.iter % args.log_every == 0:
-            print ("iter: {0}, fx={1:.6f}, ||grad_fx||={2:.6f}".format(
-                solver.iter, solver.fx, solver.grad_fx_norm
-            ))
-
+            logger.log()
         if solver.iter == args.max_iters: break
+
+
+    '''
+        Save result
+    '''
+    output_fname = get_output_fname(args, solver)
+    output_fpath = os.path.join('notebooks/data', output_fname)
+    output = {'args': args, 'plot_data': logger.data}
+    with open(output_fpath, 'wb') as f: pickle.dump(output, f)

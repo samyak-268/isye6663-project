@@ -26,6 +26,9 @@ class SteepestDescentSolver(BaseSolver):
             ls_method_kwargs=ls_method_kwargs,
         )
 
+    def __str__(self):
+        return "steepest-descent"
+
     def step(self):
         self.iter += 1
         alpha = self.alpha

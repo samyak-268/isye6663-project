@@ -39,6 +39,9 @@ class ConjugateGradientSolver(BaseSolver):
         elif self.variant == 'pr':
             return np.dot(curr_grad, (curr_grad - prev_grad)) / np.square(prev_grad_norm)
 
+    def __str__(self):
+        return "{}-cg".format(self.variant)
+
     def step(self):
         self.iter += 1
         alpha = self.alpha

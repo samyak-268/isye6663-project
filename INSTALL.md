@@ -4,3 +4,4 @@
 * Install dependencies (numpy and ipdb):
     * `conda install -c anaconda numpy`
     * `conda install -c conda-forge ipdb`
+* Create symlinks to `notebooks/data` and `notebooks/plots`
