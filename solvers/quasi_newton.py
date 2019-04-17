@@ -90,6 +90,9 @@ class DFPSolver(QuasiNewtonMethod):
             ls_method_kwargs=ls_method_kwargs,
         )
 
+    def __str__(self):
+        return "dfp"
+
     def rank_two_update(self, grad_fx_prev, p_k, q_k):
         H_q_mul = np.matmul(self.prev_H, q_k)
         _div_1 = np.dot(p_k, q_k)
@@ -121,6 +124,9 @@ class BFGSSolver(QuasiNewtonMethod):
             use_line_search=use_line_search,
             ls_method_kwargs=ls_method_kwargs,
         )
+
+    def __str__(self):
+        return "bfgs"
 
     def rank_two_update(self, grad_fx_prev, p_k, q_k):
         H_q_mul = np.matmul(self.prev_H, q_k)

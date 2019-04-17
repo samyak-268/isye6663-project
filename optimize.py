@@ -158,6 +158,7 @@ if __name__=='__main__':
         Save result
     '''
     output_fname = get_output_fname(args, solver)
+    os.makedirs('notebooks/data', exist_ok=True)
     output_fpath = os.path.join('notebooks/data', output_fname)
     output = {'args': args, 'plot_data': logger.data}
     with open(output_fpath, 'wb') as f: pickle.dump(output, f)
