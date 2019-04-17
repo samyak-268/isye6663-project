@@ -52,6 +52,7 @@ class QuasiNewtonMethod(BaseSolver):
                 iterate=self.curr_iterate,
                 descent_dir=self.curr_direction,
                 grad_fx=self.grad_fx,
+                min_step_size=1e-10,
             )
 
         # Compute next iterate: x_{k+1}
@@ -99,13 +100,14 @@ class DFPSolver(QuasiNewtonMethod):
         return "dfp"
 
     def rank_two_update(self, prev_H, grad_fx_prev, p_k, q_k):
+        pq_inner = np.dot(p_k, q_k)
+        pp_outer = np.outer(p_k, p_k)
         H_q_mul = np.matmul(prev_H, q_k)
-        _div_1 = np.dot(p_k, q_k)
-        _div_2 = np.dot(q_k, H_q_mul)
+        q_H_q_mul = np.dot(q_k, H_q_mul)
 
         H_new = prev_H \
-            + np.outer(p_k, p_k) / _div_1 \
-            + np.outer(H_q_mul, H_q_mul) / _div_2
+            + pp_outer / pq_inner \
+            - np.outer(H_q_mul, H_q_mul) / q_H_q_mul
         return H_new
 
 
@@ -134,11 +136,11 @@ class BFGSSolver(QuasiNewtonMethod):
         return "bfgs"
 
     def rank_two_update(self, prev_H, grad_fx_prev, p_k, q_k):
+        pp_outer = np.outer(p_k, p_k)
+        pq_inner = np.dot(p_k, q_k)
         H_q_mul = np.matmul(prev_H, q_k)
         q_H_q_mul = np.dot(q_k, H_q_mul)
         p_H_mul = np.dot(p_k, prev_H)
-        pp_outer = np.outer(p_k, p_k)
-        pq_inner = np.dot(p_k, q_k)
 
         term_1 = 1 + (q_H_q_mul / pq_inner)
         term_1 *= (pp_outer / pq_inner)
@@ -236,7 +238,9 @@ class LBFGSSolver(BaseSolver):
             self.curr_H_diag = p_q_dot / np.dot(q_k, q_k)
         else:
             print("WARN: p_q_dot is too small or negative!")
-            import pdb; pdb.set_trace()
+            if p_q_dot < 0:
+                raise RuntimeError("Descent direction is not gradient"
+                " related, hessian approximation might not be psd.")
 
         self.curr_direction = self.find_next_direction()
 

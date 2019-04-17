@@ -72,7 +72,7 @@ if __name__=='__main__':
         default='grad'
     )
     parser.add_argument('--max_iters', type=int, default=1000)
-    parser.add_argument('--log_every', type=int, default=1)
+    parser.add_argument('--log_every', type=int, default=25)
 
     args = parser.parse_args()
 
