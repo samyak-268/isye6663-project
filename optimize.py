@@ -8,7 +8,8 @@ from functions import RosenbrockFn, PowellFn
 from solvers import (SteepestDescentSolver,
                     ConjugateGradientSolver,
                     DFPSolver,
-                    BFGSSolver)
+                    BFGSSolver,
+                    LBFGSSolver)
 from utils import Logger, get_output_fname
 
 def get_initial_iterate(args):
@@ -44,7 +45,8 @@ if __name__=='__main__':
     parser.add_argument('--alpha', type=float, default=0.001)
     parser.add_argument('--solver',
         type=str,
-        choices=['steepest-descent', 'conjugate-gradient', 'dfp', 'bfgs'],
+        choices=['steepest-descent', 'conjugate-gradient',
+                 'dfp', 'bfgs', 'lbfgs'],
         default='bfgs'
     )
 
@@ -129,6 +131,19 @@ if __name__=='__main__':
         solver = BFGSSolver(
             fn=fn,
             x0=np.asarray([3, -1, 0, 1], dtype=np.float32),
+            alpha=args.alpha,
+            term_crit=args.term_crit,
+            # variant=args.cg_variant,
+            use_line_search=args.line_search_method != 'constant',
+            ls_method_kwargs = ls_method_kwargs,
+        )
+
+    elif args.solver == 'lbfgs':
+        solver = LBFGSSolver(
+            fn=fn,
+            x0=np.asarray([3, -1, 0, 1], dtype=np.float32),
+            initial_hessian_diag=1.,
+            queue_size=4,
             alpha=args.alpha,
             term_crit=args.term_crit,
             # variant=args.cg_variant,
