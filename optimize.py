@@ -65,6 +65,7 @@ if __name__=='__main__':
     parser.add_argument('--armijos_s', type=float, default=1.0)
     parser.add_argument('--armijos_beta', type=float, default=0.5)
     parser.add_argument('--ls_sigma', type=float, default=0.1)
+    parser.add_argument('--lbfgs_queue_size', type=int, default=4)
 
     parser.add_argument('--term_crit',
         type=str,
@@ -144,7 +145,7 @@ if __name__=='__main__':
             fn=fn,
             x0=np.asarray([3, -1, 0, 1], dtype=np.float32),
             initial_hessian_diag=1.,
-            queue_size=4,
+            queue_size=args.lbfgs_queue_size,
             alpha=args.alpha,
             term_crit=args.term_crit,
             # variant=args.cg_variant,

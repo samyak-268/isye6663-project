@@ -175,7 +175,7 @@ class LBFGSSolver(BaseSolver):
             use_line_search=use_line_search,
             ls_method_kwargs=ls_method_kwargs,
         )
-        assert queue_size >= 1
+        assert queue_size >= 2, "Need a minimum queue size of 2!"
         self.queue_size = queue_size
         # self.curr_H = np.eye(x0.shape[0])
         self.curr_H_diag = initial_hessian_diag
