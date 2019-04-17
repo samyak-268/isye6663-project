@@ -121,7 +121,7 @@ if __name__=='__main__':
     elif args.solver == 'dfp':
         solver = DFPSolver(
             fn=fn,
-            x0=np.asarray([3, -1, 0, 1], dtype=np.float32),
+            x0=get_initial_iterate(args),
             alpha=args.alpha,
             term_crit=args.term_crit,
             # variant=args.cg_variant,
@@ -132,7 +132,7 @@ if __name__=='__main__':
     elif args.solver == 'bfgs':
         solver = BFGSSolver(
             fn=fn,
-            x0=np.asarray([3, -1, 0, 1], dtype=np.float32),
+            x0=get_initial_iterate(args),
             alpha=args.alpha,
             term_crit=args.term_crit,
             # variant=args.cg_variant,
@@ -143,7 +143,7 @@ if __name__=='__main__':
     elif args.solver == 'lbfgs':
         solver = LBFGSSolver(
             fn=fn,
-            x0=np.asarray([3, -1, 0, 1], dtype=np.float32),
+            x0=get_initial_iterate(args),
             initial_hessian_diag=1.,
             queue_size=args.lbfgs_queue_size,
             alpha=args.alpha,

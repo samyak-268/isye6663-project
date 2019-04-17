@@ -3,7 +3,7 @@ import copy
 import shlex
 import subprocess
 from subprocess import Popen
-import ipdb
+# import ipdb
 
 class Launcher():
 
@@ -66,13 +66,19 @@ class Launcher():
 
     def launch_all(self):
         launcher.get_cmds_to_run()
+        procs = []
         for i, cmd in enumerate(self.cmds):
             print("Launching job {}...".format(i+1))
             proc = self.launch_job(cmd)
             if self.wait_for_all:
                 print("Waiting for job {} to finish".format(i+1))
                 proc.wait()
+            procs.append(proc)
 
+        if not self.wait_for_all:
+            for i, proc in enumerate(procs):
+                proc.wait()
+                print("Finished job {}".format(i+1))
 
 if __name__=='__main__':
 
@@ -82,5 +88,5 @@ if __name__=='__main__':
         'lbfgs-2', 'lbfgs-4', 'lbfgs-8']
     # solvers = ['lbfgs-2', 'lbfgs-4', 'lbfgs-8']
 
-    launcher = Launcher(functions, dims, solvers)
+    launcher = Launcher(functions, dims, solvers, wait_for_all=False)
     launcher.launch_all()
