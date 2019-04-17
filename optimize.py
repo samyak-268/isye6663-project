@@ -52,7 +52,7 @@ if __name__=='__main__':
 
     parser.add_argument('--cg_variant',
         type=str,
-        choices=['fr', 'pr'],
+        choices=['fr', 'pr', 'None'],
         default='fr'
     )
 
@@ -161,7 +161,7 @@ if __name__=='__main__':
     '''
     if args.tb:
         from tensorboardX import SummaryWriter
-        log_dir = 'notebooks/logs'
+        log_dir = 'notebooks/logs2'
         log_dir = os.path.join(
             log_dir,
             get_output_fname(args, solver).replace(".pkl", "")
@@ -173,15 +173,15 @@ if __name__=='__main__':
 
     logger.save()
     logger.graph()
-    logger.log()
+    # logger.log()
     while (not solver.termination_criteria_reached()):
 
         solver.step()
         logger.save()
         logger.graph()
 
-        if solver.iter % args.log_every == 0:
-            logger.log()
+        # if solver.iter % args.log_every == 0:
+        #     logger.log()
         if solver.iter == args.max_iters: break
 
 
@@ -189,7 +189,6 @@ if __name__=='__main__':
         Save result
     '''
     output_fname = get_output_fname(args, solver)
-    os.makedirs('notebooks/data', exist_ok=True)
-    output_fpath = os.path.join('notebooks/data', output_fname)
+    output_fpath = os.path.join('notebooks/data2', output_fname)
     output = {'args': args, 'plot_data': logger.data}
     with open(output_fpath, 'wb') as f: pickle.dump(output, f)
